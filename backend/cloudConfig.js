@@ -10,7 +10,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-      folder: 'SwapHub_DEV',
+      folder: 'ChatApp_DEV',
       allowedFormats: ['png','jpg','jpeg'] // supports promises as well
     },
   });
