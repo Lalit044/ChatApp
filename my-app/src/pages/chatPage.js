@@ -232,29 +232,146 @@ function ChatPage({ receiverId }) {
 
         {/* Message Form */}
         
-        <Form ref={formElement} onSubmit={sendMessage} className="d-flex align-items-center text-bar">
-          <label htmlFor="file-input" className="me-2 attach-btn">
-            📎
-          </label>
-          <input
-            id="file-input"
-            type="file"
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-            accept="image/*, video/*"
-          />
-          <Form.Control
-            type="text"
-            placeholder="Type a message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className="message-input"
-            disabled={isRestricted}
-          />
-          <Button type="submit" className="send-btn" disabled={isRestricted}>
-            Send
-          </Button>
-        </Form>
+{!isRestricted ? (
+  <Form ref={formElement} onSubmit={sendMessage} className="d-flex align-items-center text-bar">
+    <label htmlFor="file-input" className="me-2 attach-btn" style={{ cursor: 'pointer', fontSize: '1.6rem' }}>
+      📎
+    </label>
+    <input
+      id="file-input"
+      type="file"
+      style={{ display: 'none' }}
+      onChange={handleFileChange}
+      accept="image/*, video/*"
+    />
+    <Form.Control
+      type="text"
+      placeholder="Type a message..."
+      value={newMessage}
+      onChange={(e) => setNewMessage(e.target.value)}
+      className="message-input"
+    />
+    <Button type="submit" className="send-btn">
+      Send
+    </Button>
+  </Form>
+) : (
+  <div
+    className="restricted-message"
+    role="alert"
+    aria-live="polite"
+  >
+    <div className="icon-wrapper" aria-hidden="true">
+      <span className="info-icon" role="img" aria-label="information">
+        ℹ️
+      </span>
+    </div>
+    <h2 className="title">Message Sending Restricted</h2>
+    <p className="message">
+      You have been temporarily restricted by the administrator from sending messages.
+    </p>
+    <p className="help-text">
+      If you believe this is an error or need assistance, please{' '}
+      <button
+        type="button"
+        className="contact-support-btn"
+        onClick={() => alert('Redirect to support/contact page')}
+      >
+        contact support
+      </button>
+      . We're here to help!
+    </p>
+  </div>
+)}
+
+<style>{`
+  .restricted-message {
+    max-width: 460px;
+    margin: 2rem auto;
+    padding: 32px 28px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    box-shadow: 0 12px 28px rgba(255, 105, 135, 0.15);
+    text-align: center;
+    color: #982d42;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    user-select: none;
+    animation: fadeInUp 0.6s ease forwards;
+  }
+
+  .icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff7a94 0%, #ff5577 100%);
+    box-shadow: 0 6px 20px rgba(255, 87, 103, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .info-icon {
+    font-size: 3.2rem;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .title {
+    margin: 0 0 12px;
+    font-weight: 700;
+    font-size: 1.35rem;
+  }
+
+  .message {
+    margin: 0 0 16px;
+    font-weight: 500;
+    color: #7f2a3a;
+  }
+
+  .help-text {
+    margin: 0;
+    font-weight: 400;
+    font-size: 1rem;
+    color: #6a2431;
+  }
+
+  .contact-support-btn {
+    background: none;
+    border: none;
+    color: #ff5577;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    font-family: inherit;
+    transition: color 0.3s ease;
+  }
+
+  .contact-support-btn:hover,
+  .contact-support-btn:focus {
+    color: #ff7a94;
+    outline: none;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`}</style>
+
     
       </div>
     </div>
