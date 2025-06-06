@@ -272,13 +272,11 @@ function ChatPage({ receiverId }) {
     </p>
     <p className="help-text">
       If you believe this is an error or need assistance, please{' '}
-      <button
-        type="button"
-        className="contact-support-btn"
-        onClick={() => alert('Redirect to support/contact page')}
-      >
-        contact support
-      </button>
+     <a href='/support'>
+     contact support
+     </a>
+        
+    
       . We're here to help!
     </p>
   </div>
