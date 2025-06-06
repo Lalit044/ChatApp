@@ -8,6 +8,8 @@ import ChatPage from './pages/chatPage';
 import AdminPage from './pages/AdminPage';
 import { useParams } from 'react-router-dom'; // Import useParams
 import { SocketProvider } from './context/SocketContext'; 
+import Support from './pages/support';
+import AllQueries from './AllQueries';
 
 export const UserContext = createContext({});
 
@@ -32,6 +34,8 @@ function App() {
           <Route path="/users/chat/:receiverId" element={<ChatPageWrapper />} />
           <Route path="/login" element={<AuthForm type="signin" />} />
           <Route path="/signup" element={<AuthForm type="signup" />} />
+          <Route path="/support" element={<Support/>}/>
+          <Route path="/admin/query" element={<AllQueries/>}/>
         </Routes>
       </Router>
       </SocketProvider>
