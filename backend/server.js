@@ -20,6 +20,7 @@ const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const { error } = require('console');
+const SupportQuery = require('./models/SupportQuery.js');
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -93,6 +94,30 @@ const verifyAdmin = async(req, res, next) => {
 };
 
 
+// GET all queries (admin use only)
+app.get('/api/support', async (req, res) => {
+  try {
+    const queries = await SupportQuery.find().sort({ submittedAt: -1 });
+    res.json(queries);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/support', async (req, res) => {
+  const { name, email, message } = req.body;
+
+  try {
+    const newQuery = new SupportQuery({ name, email, message });
+    console.log(newQuery)
+    await newQuery.save();
+    res.status(201).json({ success: true, message: 'Query submitted successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error. Try again later.' });
+  }
+});
+
 app.get("/api/admin/users", verifyToken, verifyAdmin, async (req, res) => {
  
   try {
@@ -131,6 +156,8 @@ app.put("/api/admin/users/:userId", verifyToken, verifyAdmin, async (req, res) =
     res.status(500).json({ message: 'Failed to update user' });
   }
 });
+
+
 
 app.patch('/api/admin/users/:userId/restrict', verifyToken, verifyAdmin, async (req, res) => {
 
