@@ -1,12 +1,14 @@
-import React, { useState, useEffect , useContext} from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 import "./home.css";
-import { UserContext } from '../App';
+import { UserContext } from "../App";
 
 const HomePage = () => {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate(); // Initialize navigation hook
-  const { userAuth: { role } } = useContext(UserContext);
+  const {
+    userAuth: { role },
+  } = useContext(UserContext);
   useEffect(() => {
     // Fetch users from your API
     fetch(`${process.env.REACT_APP_SOCKET_URL}/api/users`)
@@ -22,13 +24,26 @@ const HomePage = () => {
   const handleDashboardClick = () => {
     navigate("/admin"); // Navigate to the admin dashboard
   };
+  const handleQueryClick = () => {
+    navigate("/admin/query");
+  };
   return (
     <div className="home-page">
       <h1>Chats</h1>
       {role === "admin" && (
-        <button className="go-to-dashboard-btn" onClick={handleDashboardClick}>
-          Go to Dashboard
-        </button>
+        <div>
+          <button
+            className="go-to-dashboard-btn"
+            onClick={handleDashboardClick}
+            style={{ marginRight: "10px" }} // 👈 adds space after this button
+          >
+            Go to Dashboard
+          </button>
+
+          <button className="go-to-dashboard-btn" onClick={handleQueryClick}>
+            All Query
+          </button>
+        </div>
       )}
       <div className="chat-list">
         {users.map((user) => (
@@ -50,12 +65,20 @@ const HomePage = () => {
             </div>
             <div className="social-links">
               {user.social_links.instagram && (
-                <a href={user.social_links.instagram} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={user.social_links.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Instagram
                 </a>
               )}
               {user.social_links.github && (
-                <a href={user.social_links.github} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={user.social_links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   GitHub
                 </a>
               )}
