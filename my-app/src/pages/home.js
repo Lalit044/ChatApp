@@ -35,7 +35,7 @@ const HomePage = () => {
           <button
             className="go-to-dashboard-btn"
             onClick={handleDashboardClick}
-            style={{ marginRight: "10px" }} // 👈 adds space after this button
+            style={{ marginRight: "10px" }} 
           >
             Go to Dashboard
           </button>
@@ -50,7 +50,7 @@ const HomePage = () => {
           <div
             key={user._id}
             className="chat-card"
-            onClick={() => handleChatClick(user._id)} // Attach click event
+            onClick={() => handleChatClick(user._id)} 
           >
             <div className="chat-header">
               <img
