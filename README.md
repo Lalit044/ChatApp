@@ -32,7 +32,7 @@
 | **Avatars**    | Dicebear API                        |
 
 
-Admin Features : 
+👨‍💼 Admin Features : 
 
 Admin login access (manual or protected route)
 
