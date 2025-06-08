@@ -7,19 +7,33 @@ const AllQueries = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchQueries = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/support');
-        setQueries(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Failed to fetch queries:', error);
-        setLoading(false);
-      }
-    };
-
     fetchQueries();
   }, []);
+
+  const fetchQueries = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_SOCKET_URL}/api/support`);
+      setQueries(res.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch queries:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this query?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`${process.env.REACT_APP_SOCKET_URL}/api/support/${id}`);
+      // Remove deleted query from UI
+      setQueries(prev => prev.filter(query => query._id !== id));
+    } catch (error) {
+      console.error('Failed to delete query:', error);
+      alert("Error deleting query. Try again.");
+    }
+  };
 
   return (
     <div className="queries-container">
@@ -38,6 +52,9 @@ const AllQueries = () => {
               <p className="date">
                 {new Date(query.submittedAt).toLocaleString()}
               </p>
+              <button className="delete-btn" onClick={() => handleDelete(query._id)}>
+                Delete
+              </button>
             </div>
           ))}
         </div>
