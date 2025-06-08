@@ -173,3 +173,21 @@
 .chat-page-container .cancel-btn:hover {
   background-color: #d32f2f;
 }
+
+.emoji-container {
+  position: relative;
+  margin-right: 8px;
+}
+
+.emoji-toggle-btn {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.emoji-picker-popup {
+  position: absolute;
+  bottom: 40px;
+  z-index: 999;
+}
