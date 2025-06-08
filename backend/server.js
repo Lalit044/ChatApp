@@ -61,7 +61,8 @@ const formatDataSend = (user) => {
     access_token,
     profile_img: user.personal_info.profile_img,
     username: user.personal_info.username,
-    fullname: user.personal_info.fullname
+    fullname: user.personal_info.fullname,
+    bio:user.personal_info.bio
   };
 };
 
@@ -92,6 +93,61 @@ const verifyAdmin = async(req, res, next) => {
   }
   next();
 };
+
+
+// PUT /api/users/:id
+app.put('/api/users/:id', verifyToken, async (req, res) => {
+  console.log("Request received for user update");
+
+  const { fullname, username, bio } = req.body;
+  const { id } = req.params;
+
+  try {
+    // Update nested fields inside `personal_info`
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          "personal_info.fullname": fullname,
+          "personal_info.username": username,
+          "personal_info.bio": bio
+        }
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log("User updated successfully");
+    res.status(200).json({
+      id: updatedUser._id,
+      fullname: updatedUser.personal_info.fullname,
+      username: updatedUser.personal_info.username,
+      bio: updatedUser.personal_info.bio,
+      profile_img: updatedUser.personal_info.profile_img,
+      role: updatedUser.personal_info.role,
+      isRestricted: updatedUser.isRestricted
+    });
+  } catch (err) {
+    console.error("Error while updating user:", err);
+    res.status(500).json({ message: 'Error updating user' });
+  }
+});
+
+
+
+
+app.delete('/api/support/:id', async (req, res) => {
+  try {
+    console.log("loggging");
+    await SupportQuery.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Query deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting query' });
+  }
+});
 
 
 // GET all queries (admin use only)
