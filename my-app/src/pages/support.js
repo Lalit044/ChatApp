@@ -23,7 +23,7 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    const response = await axios.post('http://localhost:5000/api/support', formData);
+    const response = await axios.post(`${process.env.REACT_APP_SOCKET_URL}/api/support`, formData);
     console.log('Server Response:', response.data);
 
     setSubmitted(true);
