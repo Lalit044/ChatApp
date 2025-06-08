@@ -19,11 +19,11 @@ function NavScroll() {
   return (
     <Navbar expand="lg" className="bg-dark navbar-dark">
       <Container fluid>
-        <Navbar.Brand href="#">ChatApp</Navbar.Brand> {/* Updated brand name */}
+        <Navbar.Brand href="#">ChatApp</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse
           id="navbarScroll"
-          className="slide-navbar" // Custom class for slide animation
+          className="slide-navbar"
         >
           <Nav
             className="me-auto my-2 my-lg-0"
@@ -46,21 +46,24 @@ function NavScroll() {
                   className="rounded-circle profileImg"
                   style={{ width: '40px', height: '40px' }}
                 />
-                <span className="ms-2" style={{ color: 'white', fontWeight: 'bold' }}>{fullname}</span> {/* Display Full Name */}
+                <span className="ms-2" style={{ color: 'white', fontWeight: 'bold' }}>{fullname}</span>
               </Dropdown.Toggle>
 
               <Dropdown.Menu
-                align="start" // Aligns the dropdown to the left of the profile picture
+                align="start"
                 className='profileDropdown'
               >
-                {/* Display user's full name */}
                 <Dropdown.ItemText style={{ fontWeight: 'bold', textAlign: 'center', padding: '0px' }}>
                   @{username}
                 </Dropdown.ItemText>
-                <Dropdown.Item
-                  onClick={handleLogout}
-                  style={{ textAlign: "center" }}
-                >
+
+                <Dropdown.Divider />
+
+                <Dropdown.Item href="/profile/edit" style={{ textAlign: "center" }}>
+                  Edit Profile
+                </Dropdown.Item>
+
+                <Dropdown.Item onClick={handleLogout} style={{ textAlign: "center" }}>
                   Logout
                 </Dropdown.Item>
               </Dropdown.Menu>
