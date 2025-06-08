@@ -5,8 +5,12 @@ import { Navigate } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext'; // Import the useSocket hook
 import axios from 'axios';
 import './chatPage.css'; // Custom CSS for styling the chat page
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
 
 function ChatPage({ receiverId }) {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   const [messages, setMessages] = useState([]); // To hold the list of messages
   const [newMessage, setNewMessage] = useState(''); // For the message input
   const [error, setError] = useState(''); // For error messages
@@ -232,7 +236,7 @@ function ChatPage({ receiverId }) {
 
         {/* Message Form */}
         
-{!isRestricted ? (
+ {!isRestricted ? (
   <Form ref={formElement} onSubmit={sendMessage} className="d-flex align-items-center text-bar">
     <label htmlFor="file-input" className="me-2 attach-btn" style={{ cursor: 'pointer', fontSize: '1.6rem' }}>
       📎
@@ -244,6 +248,23 @@ function ChatPage({ receiverId }) {
       onChange={handleFileChange}
       accept="image/*, video/*"
     />
+    <div className="emoji-container">
+  <button
+    type="button"
+    className="emoji-toggle-btn"
+    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+  >
+    😊
+  </button>
+  {showEmojiPicker && (
+    <div className="emoji-picker-popup">
+      <Picker data={data} onEmojiSelect={(emoji) => {
+        setNewMessage(prev => prev + emoji.native);
+      }} />
+    </div>
+  )}
+</div>
+
     <Form.Control
       type="text"
       placeholder="Type a message..."
