@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom'; // Import useParams
 import { SocketProvider } from './context/SocketContext'; 
 import Support from './pages/support';
 import AllQueries from './AllQueries';
+import EditProfile from './pages/editProfile';
 
 export const UserContext = createContext({});
 
@@ -36,6 +37,7 @@ function App() {
           <Route path="/signup" element={<AuthForm type="signup" />} />
           <Route path="/support" element={<Support/>}/>
           <Route path="/admin/query" element={<AllQueries/>}/>
+          <Route path="profile/edit" element={<EditProfile/>}/>
         </Routes>
       </Router>
       </SocketProvider>
