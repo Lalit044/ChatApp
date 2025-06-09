@@ -186,7 +186,6 @@ app.get("/api/admin/users", verifyToken, verifyAdmin, async (req, res) => {
 });
 
 
-
 // Update User Role (Admin only)
 app.put("/api/admin/users/:userId", verifyToken, verifyAdmin, async (req, res) => {
   const { userId } = req.params;
@@ -236,16 +235,34 @@ app.patch('/api/admin/users/:userId/restrict', verifyToken, verifyAdmin, async (
   }
 });
 
-app.post('/api/admin/users/import',  verifyToken, verifyAdmin,async (req, res) => {
 
-  const users = req.body; // Assumes an array of users from the frontend
+app.post('/api/admin/users/import', verifyToken, verifyAdmin, async (req, res) => {
+  const users = req.body; // Array of users with personal_info including password
 
   try {
-    const createdUsers = await User.insertMany(users); // Insert all users at once
+    const usersWithHashedPasswords = await Promise.all(
+      users.map(async (user) => {
+        if (!user.personal_info || !user.personal_info.password) {
+          throw new Error('Password missing for user: ' + (user.personal_info?.email || 'unknown'));
+        }
+
+        const hashedPassword = await bcrypt.hash(user.personal_info.password, 10);
+
+        return {
+          ...user,
+          personal_info: {
+            ...user.personal_info,
+            password: hashedPassword,
+          },
+        };
+      })
+    );
+
+    const createdUsers = await User.insertMany(usersWithHashedPasswords);
     res.status(201).json(createdUsers);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Failed to import users' });
+    res.status(500).json({ message: 'Failed to import users', error: err.message });
   }
 });
 
