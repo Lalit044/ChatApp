@@ -260,6 +260,21 @@ function AdminPage() {
                   })
                 }
               />
+              <Form.Group>
+                <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={currentUser.personal_info.password || ''}
+                    onChange={(e) =>
+                    setCurrentUser({
+                    ...currentUser,
+                    personal_info: { ...currentUser.personal_info, password: e.target.value },
+                    })
+                    }
+                  placeholder={isEditMode ? "Leave blank to keep existing password" : "Enter password"}
+                  />
+              </Form.Group>
+
             </Form.Group>
             <Form.Group>
               <Form.Label>Bio</Form.Label>
