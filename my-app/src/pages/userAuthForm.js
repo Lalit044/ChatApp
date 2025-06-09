@@ -6,45 +6,48 @@ import { storeInSession } from '../common/session';
 import { UserContext } from '../App';
 import { Navigate } from 'react-router-dom';
 import { authWithGoogle } from '../common/firebase';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
 
 function AuthForm({ type }) {
   const [error, setError] = useState('');  // For showing error messages
   const formElement = useRef(null); // Use ref to reference the form
-  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   let {userAuth:{access_token},setUserAuth}=useContext(UserContext)
-  
+
   const userAuthThroughServer = (serverRoute, formData) => {
     axios
-  .post(`${process.env.REACT_APP_SOCKET_URL}` + serverRoute, formData, {
-    headers: {
-      'Content-Type': 'application/json', // Ensure the request header is set to JSON
-    },
-  })
-  .then(({ data }) => {
-    storeInSession("user", JSON.stringify(data));
-    setUserAuth(data);
-  })
-  .catch((error) => {
-    if (error.response) {
-      // Server responded with an error
-      console.log(error.response);
-      setError(error.response.data?.error || "An unknown error occurred.");
-    } else if (error.request) {
-      // Request was made, but no response received
-      console.error("No response received from the server:", error.request);
-      setError("Unable to connect to the server. Please try again later.");
-    } else {
-      // Something else went wrong
-      console.error("Error occurred while making the request:", error.message);
-      setError("An error occurred. Please try again.");
-    }
-  });
-
+      .post(`${process.env.REACT_APP_SOCKET_URL}` + serverRoute, formData, {
+        headers: {
+          'Content-Type': 'application/json', // Ensure the request header is set to JSON
+        },
+      })
+      .then(({ data }) => {
+        storeInSession("user", JSON.stringify(data));
+        setUserAuth(data);
+      })
+      .catch((error) => {
+        if (error.response) {
+          // Server responded with an error
+          console.log(error.response);
+          setError(error.response.data?.error || "An unknown error occurred.");
+        } else if (error.request) {
+          // Request was made, but no response received
+          console.error("No response received from the server:", error.request);
+          setError("Unable to connect to the server. Please try again later.");
+        } else {
+          // Something else went wrong
+          console.error("Error occurred while making the request:", error.message);
+          setError("An error occurred. Please try again.");
+        }
+      });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     let serverRoute = type === "signin" ? "/signin" : "/signup";
 
     let emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/; // regex for email
@@ -98,104 +101,135 @@ function AuthForm({ type }) {
     userAuthThroughServer(serverRoute, formData);
   };
 
-const handleGoogleAuth=(e)=>
-{
-  console.log("clicked here ->")
-  e.preventDefault();
-  authWithGoogle().then(user=>
-  {
-    console.log(user)
-    let serverRoute="/google-auth";
+  const handleGoogleAuth = (e) => {
+    console.log("clicked here ->")
+    e.preventDefault();
+    authWithGoogle().then(user => {
+      console.log(user)
+      let serverRoute = "/google-auth";
 
-    let formData ={
-      access_token:user.accessToken
+      let formData = {
+        access_token: user.accessToken
+      }
+
+      userAuthThroughServer(serverRoute, formData);
     }
-   
-    userAuthThroughServer(serverRoute,formData);
+    )
+      .catch(err => {
+        setError("error in google auth");
+        return console.log(err);
+      }
+      )
   }
-  )
-  .catch(err=>
-  {
-    setError("error in google auth");
-    return console.log(err);
-  }
-  )
-}
 
   return (
-    access_token?
-    <Navigate to="/" />:
-    <div className="auth-form-container">
-      <div className="auth-form-card">
-        <h2>{type === 'signup' ? 'Signup' : 'Login'}</h2>
+    access_token ?
+      <Navigate to="/" /> :
+      <div className="auth-form-container">
+        <div className="auth-form-card">
+          <h2>{type === 'signup' ? 'Signup' : 'Login'}</h2>
 
-        {/* Display error message */}
-        {error && <Alert variant="danger">{error}</Alert>}
+          {/* Display error message */}
+          {error && <Alert variant="danger">{error}</Alert>}
 
-        {/* Form */}
-        <Form ref={formElement} onSubmit={handleSubmit}>
-          {/* Full Name Input for Signup */}
-          {type === 'signup' && (
-            <Form.Group className="mb-3" controlId="fullname">
-              <Form.Label>Full Name</Form.Label>
+          {/* Form */}
+          <Form ref={formElement} onSubmit={handleSubmit}>
+            {/* Full Name Input for Signup */}
+            {type === 'signup' && (
+              <Form.Group className="mb-3" controlId="fullname">
+                <Form.Label>Full Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="fullname"
+                  placeholder="Enter full name"
+                />
+              </Form.Group>
+            )}
+
+            {/* Email Input */}
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control type="email" name="email" placeholder="Enter email" />
+            </Form.Group>
+
+            {/* Password Input */}
+            <Form.Group className="mb-3 position-relative" controlId="password">
+              <Form.Label>Password</Form.Label>
               <Form.Control
-                type="text"
-                name="fullname"
-                placeholder="Enter full name"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Enter password"
               />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="password-toggle"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                role="button"
+                tabIndex={0}
+                onKeyPress={(e) => {
+                if (e.key === "Enter" || e.key === " ") setShowPassword(!showPassword);
+               }}
+              >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+
             </Form.Group>
-          )}
 
-          {/* Email Input */}
-          <Form.Group className="mb-3" controlId="email">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" name="email" placeholder="Enter email" />
-          </Form.Group>
+            {/* Show Confirm Password field if Signup */}
+            {type === 'signup' && (
+              <Form.Group className="mb-3 position-relative" controlId="confirmPassword">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirm password"
+                />
+                <span
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="password-toggle"
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => {
+                  if (e.key === "Enter" || e.key === " ") setShowConfirmPassword(!showConfirmPassword);
+                  }}
+                >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
 
-          {/* Password Input */}
-          <Form.Group className="mb-3" controlId="password">
-            <Form.Label>Password</Form.Label>
-            <Form.Control type="password" name="password" placeholder="Enter password" />
-          </Form.Group>
-
-          {/* Show Confirm Password field if Signup */}
-          {type === 'signup' && (
-            <Form.Group className="mb-3" controlId="confirmPassword">
-              <Form.Label>Confirm Password</Form.Label>
-              <Form.Control type="password" name="confirmPassword" placeholder="Confirm password" />
             </Form.Group>
-          )}
-         
-          {/* Submit Button */}
-          <Button variant="primary" type="submit" className="w-100 submit-btn">
-            {type === 'signup' ? 'Sign Up' : 'Login'}
-          </Button>
-          
-          <div 
-          className="google-signin-btn-container mt-3"
-          onClick={handleGoogleAuth}
-          >
-            <Button className="google-signin-btn w-100 btn-dark">
-              <img
-                src="https://th.bing.com/th/id/OIP.lsGmVmOX789951j9Km8RagHaHa?rs=1&pid=ImgDetMain"
-                alt="Google Logo"
-                className="google-logo"
-                style={{width:"25px" ,marginRight:"10px"}}
-              />
-              Sign in with Google
+            )}
+
+            {/* Submit Button */}
+            <Button variant="primary" type="submit" className="w-100 submit-btn">
+              {type === 'signup' ? 'Sign Up' : 'Login'}
             </Button>
-          </div>
-          {/* Toggle Link */}
-          <Button
-            variant="link"
-            onClick={() => window.location.href = type === 'signup' ? '/login' : '/signup'}
-            className="mt-3 d-block mx-auto toggle-link"
-          >
-            {type === 'signup' ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
-          </Button>
-        </Form>
+
+            <div
+              className="google-signin-btn-container mt-3"
+              onClick={handleGoogleAuth}
+            >
+              <Button className="google-signin-btn w-100 btn-dark">
+                <img
+                  src="https://th.bing.com/th/id/OIP.lsGmVmOX789951j9Km8RagHaHa?rs=1&pid=ImgDetMain"
+                  alt="Google Logo"
+                  className="google-logo"
+                  style={{ width: "25px", marginRight: "10px" }}
+                />
+                Sign in with Google
+              </Button>
+            </div>
+            {/* Toggle Link */}
+            <Button
+              variant="link"
+              onClick={() => window.location.href = type === 'signup' ? '/login' : '/signup'}
+              className="mt-3 d-block mx-auto toggle-link"
+            >
+              {type === 'signup' ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
+            </Button>
+          </Form>
+        </div>
       </div>
-    </div>
   );
 }
 
