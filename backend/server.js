@@ -250,21 +250,43 @@ app.post('/api/admin/users/import',  verifyToken, verifyAdmin,async (req, res) =
 });
 
 // Create Admin User (Admin only)
-app.post("/api/admin/users",  verifyToken, verifyAdmin, async (req, res) => {
+// Create Admin User (Admin only)
+app.post("/api/admin/users", verifyToken, verifyAdmin, async (req, res) => {
+  const { fullname, email, username, bio, role, password } = req.body.personal_info;
 
-  const { fullname, email, username, bio, role } = req.body.personal_info;
-  
   try {
+    // 1. Validate if password exists
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    // 2. Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10); // saltRounds = 10
+
+    // 3. Create new user with hashed password
     const newUser = new User({
-      personal_info: { fullname, email, username, bio, role },
-      isRestricted:req.body.isRestricted
+      personal_info: {
+        fullname,
+        email,
+        username,
+        bio,
+        role,
+        password: hashedPassword, // Add hashed password
+      },
+      isRestricted: req.body.isRestricted,
     });
 
-    await newUser.save(); // Save the new user to the database
-    res.status(201).json(newUser);
+    // 4. Save to DB
+    await newUser.save();
+
+    // 5. Send response (you may choose to omit password in response)
+    const userToReturn = newUser.toObject();
+    delete userToReturn.personal_info.password; // Avoid sending password in response
+    res.status(201).json(userToReturn);
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Failed to add user' });
+    res.status(500).json({ message: "Failed to add user" });
   }
 });
 
@@ -402,17 +424,39 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-// Signin Route
 app.post("/signin", async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ "personal_info.email": email });
 
-  if (!user) return res.status(403).json({ "error": "Email not found" });
+  try {
+    // 1. Check if both email and password are provided
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
 
-  const result = await bcrypt.compare(password, user.personal_info.password);
-  if (!result) return res.status(403).json({ "error": "Incorrect password" });
+    // 2. Find user by email
+    const user = await User.findOne({ "personal_info.email": email });
+    if (!user) {
+      return res.status(403).json({ error: "Email not found" });
+    }
 
-  res.status(200).json(formatDataSend(user));
+    // 3. Ensure user has a password field
+    if (!user.personal_info.password) {
+      return res.status(500).json({ error: "User account has no password set" });
+    }
+
+    // 4. Compare password
+    const isMatch = await bcrypt.compare(password, user.personal_info.password);
+    if (!isMatch) {
+      return res.status(403).json({ error: "Incorrect password" });
+    }
+
+    // 5. Send successful login response
+    res.status(200).json(formatDataSend(user));
+
+  } catch (err) {
+    console.error("Signin error:", err);
+    res.status(500).json({ error: "Internal server error during sign-in" });
+  }
 });
 
 // Google Auth Route
