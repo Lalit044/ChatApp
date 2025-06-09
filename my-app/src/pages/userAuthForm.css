@@ -45,4 +45,18 @@
       max-width: 90%;
     }
   }
-  
+ 
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 38px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.25rem; /* a bit bigger for icons */
+  color: #6c757d;
+  transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #495057;
+}
